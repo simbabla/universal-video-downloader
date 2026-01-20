@@ -35,8 +35,7 @@ Simple command-line interface for power users
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/yourusername/video-downloader.git
-cd video-downloader
+git clone https://github.com/simbabla/universal-video-downloader.git
 ```
 
 2. **Run the GUI:**
