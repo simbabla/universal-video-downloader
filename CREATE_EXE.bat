@@ -6,7 +6,7 @@ echo ========================================
 echo.
 
 echo [1/2] Installing PyInstaller...
-pip install pyinstaller
+py -m pip install pyinstaller
 if errorlevel 1 (
     echo ERROR: Failed to install PyInstaller
     pause
@@ -18,7 +18,7 @@ echo [2/2] Creating EXE file...
 echo This may take a few minutes...
 echo.
 
-pyinstaller --onefile --windowed --name "VideoDownloader" --icon=NONE video_downloader_gui.py
+py -m PyInstaller --onefile --windowed --name "VideoDownloader" --icon=NONE video_downloader_gui.py
 
 echo.
 echo ========================================
