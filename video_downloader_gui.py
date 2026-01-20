@@ -10,6 +10,7 @@ import sys
 import threading
 from pathlib import Path
 import os
+import multiprocessing
 
 class VideoDownloaderGUI:
     def __init__(self, root):
@@ -25,6 +26,7 @@ class VideoDownloaderGUI:
         self.use_cookies = tk.BooleanVar(value=False)  # Default to False to avoid cookie errors
         self.browser = tk.StringVar(value="chrome")
         self.is_downloading = False
+        self.current_process = None  # Track current download process for cancellation
         
         self.setup_ui()
         self.check_dependencies()
@@ -152,6 +154,21 @@ class VideoDownloaderGUI:
         )
         self.download_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
         
+        self.cancel_btn = tk.Button(
+            button_frame,
+            text="🛑 Cancel",
+            font=("Arial", 10),
+            bg="#E67E22",
+            fg="white",
+            activebackground="#D35400",
+            activeforeground="white",
+            cursor="hand2",
+            command=self.cancel_download,
+            width=10,
+            state=tk.DISABLED
+        )
+        self.cancel_btn.pack(side=tk.LEFT, padx=(5, 5))
+        
         clear_btn = tk.Button(
             button_frame,
             text="🗑️ Clear",
@@ -164,7 +181,7 @@ class VideoDownloaderGUI:
             command=self.clear_urls,
             width=10
         )
-        clear_btn.pack(side=tk.LEFT, padx=(5, 0))
+        clear_btn.pack(side=tk.LEFT)
         
         # === Progress/Log Section ===
         log_frame = ttk.LabelFrame(main_frame, text="Progress", padding="10")
@@ -198,6 +215,19 @@ class VideoDownloaderGUI:
         """Clear the URL input box"""
         self.url_text.delete("1.0", tk.END)
         self.log("URL list cleared", "INFO")
+    
+    def cancel_download(self):
+        """Cancel the current download"""
+        if self.current_process:
+            try:
+                self.current_process.terminate()
+                self.log("🛑 Download cancelled by user", "WARNING")
+            except:
+                pass
+        self.is_downloading = False
+        self.download_btn.config(state=tk.NORMAL, text="📥 Download Videos")
+        self.cancel_btn.config(state=tk.DISABLED)
+        self.progress.stop()
     
     def log(self, message, level="INFO"):
         """Add message to log display"""
@@ -234,7 +264,7 @@ class VideoDownloaderGUI:
         # Check yt-dlp
         try:
             result = subprocess.run(
-                ['yt-dlp', '--version'],
+                [sys.executable, '-m', 'yt_dlp', '--version'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -244,7 +274,7 @@ class VideoDownloaderGUI:
                 self.log(f"yt-dlp {version} is installed", "SUCCESS")
             else:
                 self.install_ytdlp()
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+        except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError):
             self.install_ytdlp()
         
         # Check ffmpeg
@@ -337,7 +367,7 @@ class VideoDownloaderGUI:
             
             try:
                 # Run yt-dlp
-                process = subprocess.Popen(
+                self.current_process = subprocess.Popen(
                     cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
@@ -345,6 +375,7 @@ class VideoDownloaderGUI:
                     bufsize=1,
                     universal_newlines=True
                 )
+                process = self.current_process
                 
                 # Stream output
                 for line in process.stdout:
@@ -386,10 +417,12 @@ class VideoDownloaderGUI:
         self.log(f"📁 Files saved to: {output_path.absolute()}", "INFO")
         self.log("=" * 60, "INFO")
         
-        # Re-enable download button
+        # Re-enable download button, disable cancel button
         self.download_btn.config(state=tk.NORMAL, text="📥 Download Videos")
+        self.cancel_btn.config(state=tk.DISABLED)
         self.progress.stop()
         self.is_downloading = False
+        self.current_process = None
         
         # Show completion message
         if success_count > 0:
@@ -403,8 +436,10 @@ class VideoDownloaderGUI:
         """Build yt-dlp command"""
         output_template = str(Path(self.output_dir.get()) / '%(title)s.%(ext)s')
         
+        # Use py -m yt_dlp instead of yt-dlp command for better Windows compatibility
         cmd = [
-            'yt-dlp',
+            sys.executable,  # Use current Python interpreter
+            '-m', 'yt_dlp',
             url,
             '-o', output_template,
             '--merge-output-format', 'mp4',
@@ -459,6 +494,9 @@ class VideoDownloaderGUI:
         return cmd
 
 def main():
+    # Fix for PyInstaller - prevents multiple windows from spawning
+    multiprocessing.freeze_support()
+    
     root = tk.Tk()
     app = VideoDownloaderGUI(root)
     root.mainloop()
