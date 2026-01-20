@@ -1,0 +1,55 @@
+===============================================
+ QUICK GITHUB UPLOAD - COPY & PASTE COMMANDS
+===============================================
+
+STEP 1: Create repo on GitHub
+------------------------------
+Go to: https://github.com/new
+- Name: universal-video-downloader
+- Public
+- DON'T initialize with README
+- Click "Create repository"
+
+
+STEP 2: Open PowerShell in this folder
+---------------------------------------
+Right-click in this folder → "Open in Terminal"
+Or in PowerShell, type:
+
+cd C:\Users\frenc\Desktop\whop\download\dowln\github
+
+
+STEP 3: Run these commands (one at a time)
+-------------------------------------------
+
+git init
+
+git add .
+
+git commit -m "Initial commit: Universal video downloader with GUI and CLI"
+
+git branch -M main
+
+git remote add origin https://github.com/simbabla/universal-video-downloader.git
+
+git push -u origin main
+
+
+DONE! ✅
+-------
+Your project is now on GitHub!
+Visit: https://github.com/simbabla/universal-video-downloader
+
+
+FUTURE UPDATES:
+---------------
+When you make changes:
+
+git add .
+git commit -m "Description of changes"
+git push
+
+
+===============================================
+Need help? Read UPLOAD_TO_GITHUB.md
+===============================================

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Downloaded content
+video_downloads/
+*.mp4
+*.webm
+*.mkv
+*.avi
+*.mov
+*.m3u8
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.log
+*.bak
